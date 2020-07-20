@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016 Bastian Oppermann
- * 
+ *
  * This file is part of SDCF4J.
  *
  * Javacord is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@ public abstract class CommandHandler {
     protected final HashMap<String, SimpleCommand> commands = new HashMap<>();
     protected final List<SimpleCommand> commandList = new ArrayList<>();
     private final HashMap<String, List<String>> permissions = new HashMap<>();
+    private final HashMap<String, List<String>> ignored = new HashMap<>();
 
     protected String defaultPrefix = "";
 
@@ -123,6 +124,46 @@ public abstract class CommandHandler {
         }
         // user hasn't enough permissions
         return false;
+    }
+
+    /**
+     * Gets a map which contains all ignored users.
+     * The map's key is the server id, the value is a list ignored users id of the server.
+     *
+     * @return A map which contains all ignored users.
+     */
+    public HashMap<String, List<String>> getIgnored() {
+        return ignored;
+    }
+
+    /**
+     * Adds the id of the ignored user to the list.
+     *
+     * @param serverId The id of the server
+     * @param userId The id of the user.
+     */
+    public void addIgnored(String serverId, String userId) {
+        List<String> ignored = this.ignored.get(serverId);
+        if (ignored == null) {
+            ignored = new ArrayList<>();
+            this.ignored.put(serverId, ignored);
+        }
+        ignored.add(userId);
+    }
+
+    /**
+     * Checks if the user with the given id is ignored on the server.
+     *
+     * @param serverId The id of the server
+     * @param userId The id of the user
+     * @return if the user is ignored on the server
+     */
+    public boolean isIgnored(String serverId, String userId) {
+        List<String> ignored = this.ignored.get(serverId);
+        if (ignored == null) {
+            return false;
+        }
+        return ignored.contains(userId);
     }
 
     /**

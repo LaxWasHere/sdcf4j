@@ -1,18 +1,18 @@
 /*
  * Copyright (C) 2016 Bastian Oppermann
- * 
+ *
  * This file is part of SDCF4J.
- * 
+ *
  * Javacord is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser general Public License as
  * published by the Free Software Foundation; either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * SDCF4J is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
@@ -81,6 +81,27 @@ public class JavacordHandler extends CommandHandler {
     }
 
     /**
+     * Adds the id of the ignored user to the list.
+     *
+     * @param server The server
+     * @param user The user
+     */
+    public void addIgnored(Server server, User user) {
+        addIgnored(server.getIdAsString(), user.getIdAsString());
+    }
+
+    /**
+     * Checks if the user is ignored on the server.
+     *
+     * @param server The server
+     * @param user The user
+     * @return if the user is ignored on the server
+     */
+    public boolean isIgnored(Server server, User user) {
+        return isIgnored(server.getIdAsString(), user.getIdAsString());
+    }
+
+    /**
      * Handles a received message.
      *
      * @param api The api.
@@ -89,6 +110,9 @@ public class JavacordHandler extends CommandHandler {
     private void handleMessageCreate(DiscordApi api, final MessageCreateEvent event) {
         Message message = event.getMessage();
         if (message.getUserAuthor().map(User::isYourself).orElse(false)) {
+            return;
+        }
+        if (isIgnored(message.getServer().map(Server::getIdAsString).orElse("-1"), message.getAuthor().getIdAsString())) {
             return;
         }
         String[] splitMessage = message.getContent().split("[\\s&&[^\\n]]++");
